@@ -10,7 +10,7 @@ For example, the project associated with `rg-epchubspoke-dev-eastus2` is named `
 .
 ├──  environments
     ├──  dev
-    │      └──  epchubspoke
+    │    └──  epchubspoke
     └──  prod
 └── modules
 ```
