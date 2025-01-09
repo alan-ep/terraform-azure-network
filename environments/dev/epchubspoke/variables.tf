@@ -15,3 +15,10 @@ variable "prefix" {
   description = "Resource name prefix"
   default     = "epchubspoke"
 }
+
+variable "tags" {
+  type = map(string)
+  default = {
+    systems_team = "Network"
+  }
+}
