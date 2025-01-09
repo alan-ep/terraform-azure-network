@@ -73,3 +73,60 @@ resource "azurerm_network_manager_deployment" "hub_vnc_deployment" {
   scope_access       = "Connectivity"
   configuration_ids  = [azurerm_network_manager_connectivity_configuration.hub_vnc.id]
 }
+
+resource "azurerm_public_ip" "hubdev1_pip" {
+  name                = "pip-hubdev1-${var.prefix}-${var.env}-${var.location}"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  tags                = var.tags
+}
+
+resource "azurerm_network_interface" "hubdev1_nic" {
+  name                = "hubdev1-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = var.tags
+
+  accelerated_networking_enabled = true
+  ip_forwarding_enabled          = true
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.hub_subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.hubdev1_pip.id
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "hubdev1" {
+  name                = "hubdev1"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = var.tags
+
+  size           = "Standard_F4s_v2"
+  admin_username = "adminuser"
+
+  network_interface_ids = [
+    azurerm_network_interface.hubdev1_nic.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("config/id_azure_epchubspoke.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "ubuntu-24_04-lts"
+    sku       = "server"
+    version   = "latest"
+  }
+}
