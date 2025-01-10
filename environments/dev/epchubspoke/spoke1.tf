@@ -30,7 +30,7 @@ resource "azurerm_network_interface" "spoke1dev_nic" {
   name                = "spoke1dev-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags = azurerm_resource_group.rg.tags
+  tags                = azurerm_resource_group.rg.tags
 
   accelerated_networking_enabled = true
 
@@ -45,7 +45,7 @@ resource "azurerm_linux_virtual_machine" "spoke1dev" {
   name                = "spoke1dev"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-    tags = merge(
+  tags = merge(
     azurerm_resource_group.rg.tags,
     {
       role = "Client"

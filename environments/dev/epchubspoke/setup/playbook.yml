@@ -1,5 +1,4 @@
 - name: Configure clients and servers 
-  #hosts: roleClient:roleServer
   hosts: roleServer
   become: yes
   handlers:
