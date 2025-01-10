@@ -1,0 +1,19 @@
+local_as: 64521
+peer_as: 64522
+
+local_ipv4_address: 10.0.0.1
+local_ipv6_address: fd00::1
+
+local_ipv4_prefix: 10.0.0.1/32 
+local_ipv6_prefix: fd00::1/128 
+
+peer_ipv4_address: 10.0.0.2
+peer_ipv6_address: fd00::2 
+
+peer_ipv4_prefix: 10.0.0.2/32 
+peer_ipv6_prefix: fd00::2/128
+
+local_networks:
+  - 10.223.0.0/16
+peer_networks: 
+  - 10.224.0.0/12 

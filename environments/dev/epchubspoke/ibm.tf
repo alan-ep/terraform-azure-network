@@ -3,16 +3,16 @@ resource "azurerm_virtual_network" "ibm_vnet" {
   name                = "vnet-ibm-${var.prefix}-${var.env}-${var.location}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  tags                = var.tags
+  tags                = azurerm_resource_group.rg.tags
 
-  address_space = ["10.239.0.0/16"]
+  address_space = ["10.223.0.0/16"]
 }
 
 resource "azurerm_subnet" "ibm_subnet" {
   name                 = "sn-ibm-${var.prefix}-${var.env}-${var.location}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.ibm_vnet.name
-  address_prefixes     = ["10.239.0.0/24"]
+  address_prefixes     = ["10.223.0.0/24"]
 }
 
 resource "azurerm_subnet_network_security_group_association" "ibm_subnet_nsga" {
@@ -26,14 +26,14 @@ resource "azurerm_public_ip" "ibmdev1_pip" {
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  tags                = var.tags
+  tags                = azurerm_resource_group.rg.tags
 }
 
 resource "azurerm_network_interface" "ibmdev1_nic" {
   name                = "ibmdev1-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags                = var.tags
+  tags = azurerm_resource_group.rg.tags
 
   accelerated_networking_enabled = true
   ip_forwarding_enabled          = true
@@ -50,7 +50,12 @@ resource "azurerm_linux_virtual_machine" "ibmdev1" {
   name                = "ibmdev1"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags                = var.tags
+  tags = merge(
+    azurerm_resource_group.rg.tags,
+    {
+      role = "Server"
+    }
+  )
 
   size           = "Standard_F4s_v2"
   admin_username = "adminuser"

@@ -3,16 +3,16 @@ resource "azurerm_virtual_network" "hub_vnet" {
   name                = "vnet-hub-${var.prefix}-${var.env}-${var.location}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  tags                = var.tags
+  tags                = azurerm_resource_group.rg.tags
 
-  address_space = ["10.223.0.0/16"]
+  address_space = ["10.224.0.0/16"]
 }
 
 resource "azurerm_subnet" "hub_subnet" {
   name                 = "sn-hub-${var.prefix}-${var.env}-${var.location}"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.hub_vnet.name
-  address_prefixes     = ["10.223.0.0/24"]
+  address_prefixes     = ["10.224.0.0/24"]
 }
 
 resource "azurerm_subnet_network_security_group_association" "hub_subnet_nsga" {
@@ -24,7 +24,7 @@ resource "azurerm_network_manager" "hub_vnm" {
   name                = "vnm-hub-${var.prefix}-${var.env}-${var.location}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  tags                = var.tags
+  tags                = azurerm_resource_group.rg.tags
 
   scope {
     subscription_ids = [data.azurerm_subscription.current.id]
@@ -80,14 +80,14 @@ resource "azurerm_public_ip" "hubdev1_pip" {
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  tags                = var.tags
+  tags                = azurerm_resource_group.rg.tags
 }
 
 resource "azurerm_network_interface" "hubdev1_nic" {
   name                = "hubdev1-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags                = var.tags
+  tags                = azurerm_resource_group.rg.tags
 
   accelerated_networking_enabled = true
   ip_forwarding_enabled          = true
@@ -104,7 +104,12 @@ resource "azurerm_linux_virtual_machine" "hubdev1" {
   name                = "hubdev1"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags                = var.tags
+  tags = merge(
+    azurerm_resource_group.rg.tags,
+    {
+      role = "Server"
+    }
+  )
 
   size           = "Standard_F4s_v2"
   admin_username = "adminuser"

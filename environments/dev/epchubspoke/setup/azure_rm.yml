@@ -1,0 +1,12 @@
+plugin: azure.azcollection.azure_rm 
+
+include_vm_resource_groups:
+  - rg-epchubspoke-dev-eastus2
+
+auth_source: auto
+
+keyed_groups:
+ - key: tags
+   separator: ""
+
+plain_host_names: true

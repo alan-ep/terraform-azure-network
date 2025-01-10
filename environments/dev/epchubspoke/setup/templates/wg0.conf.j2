@@ -1,0 +1,21 @@
+[Interface]
+Address = {{ local_ipv4_prefix | trim }}, {{ local_ipv6_prefix | trim }} 
+ListenPort = 51820
+Table = off
+
+# Enable forwarding
+PreUp = sysctl -w net.ipv4.ip_forward=1
+PreUp = sysctl -w net.ipv6.conf.all.forwarding=1
+
+# Read the private key
+PostUp = wg set %i private-key /etc/wireguard/%i.key
+
+# Add peer routes
+PostUp = ip route add {{ peer_ipv4_prefix | trim }} dev wg0
+PostUp = ip -6 route add {{ peer_ipv6_prefix | trim }} dev wg0
+
+[Peer]
+PublicKey = <peer_public_key> 
+Endpoint = <peer_public_ip>:51820
+AllowedIPs = {{ peer_ipv4_prefix | trim }}, {{ peer_ipv6_prefix | trim }}, {{ peer_networks | join(',') }} 
+PersistentKeepalive = 10 
