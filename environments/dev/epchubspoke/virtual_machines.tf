@@ -204,3 +204,40 @@ resource "azurerm_linux_virtual_machine" "ibmwgdev1" {
     version   = "latest"
   }
 }
+
+resource "azurerm_linux_virtual_machine" "ibmwgdev2" {
+  name                = "ibmwgdev2"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tags = merge(
+    azurerm_resource_group.rg.tags,
+    {
+      managedBy = "Ansible"
+    }
+  )
+
+  size           = "Standard_F4s_v2"
+  zone           = "1"
+  admin_username = "adminuser"
+
+  network_interface_ids = [
+    azurerm_network_interface.ibmwgdev2.id,
+  ]
+
+  admin_ssh_key {
+    username   = "adminuser"
+    public_key = file("config/id_azure_epchubspoke.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "ubuntu-24_04-lts"
+    sku       = "server"
+    version   = "latest"
+  }
+}

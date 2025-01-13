@@ -1,16 +1,17 @@
 bgp:
   as: 64521
-  router_id: 10.223.0.4
+  router_id: 10.223.0.5
   listen_addresses:
-    - 10.0.0.1
-    - fd00::1
-    - 10.223.0.4
+    - 10.0.0.3
+    - fd00::3
+    - 10.223.0.5
   groups:
     - name: nva
       as: 64522
+      prepend-self: 1
       neighbors:
-        - 10.0.0.2
-        - fd00::2
+        - 10.0.0.4
+        - fd00::4
       allowed_prefixes_from:
         - remote
       allowed_prefixes_to:
@@ -25,26 +26,16 @@ bgp:
 
 wireguard:
   addresses:
-    - 10.0.0.1/32
-    - fd00::1/128
+    - 10.0.0.3/32
+    - fd00::3/128
   peers:
-    - name: nvawgdev1
-      key:
-      endpoint: 52.184.164.51:51820
-      routes:
-        - 10.0.0.2/32
-        - fd00::2/128
-      allowed:
-        - 10.0.0.2/32
-        - fd00::2/128
-        - 10.224.0.0/12
     - name: nvawgdev2
       key:
       endpoint: 52.184.165.183:51820
       routes:
-        - 10.0.0.3/32
-        - fd00::3/128
+        - 10.0.0.4/32
+        - fd00::4/128
       allowed:
-        - 10.0.0.3/32
-        - fd00::3/128
+        - 10.0.0.4/32
+        - fd00::4/128
         - 10.224.0.0/12

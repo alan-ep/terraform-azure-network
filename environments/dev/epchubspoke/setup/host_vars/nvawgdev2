@@ -2,8 +2,8 @@ bgp:
   as: 64522
   router_id: 10.223.3.5
   listen_addresses:
-    - 10.0.0.3
-    - fd00::3
+    - 10.0.0.4
+    - fd00::4
     - 10.224.3.5
   groups:
     - name: azure
@@ -19,8 +19,8 @@ bgp:
       prepend-self: 1
       as: 64521
       neighbors:
-        - 10.0.0.1
-        - fd00::1
+        - 10.0.0.3
+        - fd00::3
       allowed_prefixes_from: []
       allowed_prefixes_to:
         - local
@@ -35,16 +35,16 @@ bgp:
 
 wireguard:
   addresses:
-    - 10.0.0.3/32
-    - fd00::3/128
+    - 10.0.0.4/32
+    - fd00::4/128
   peers:
-    - name: ibmwgdev1
+    - name: ibmwgdev2
       key:
-      endpoint: 9.169.164.225:51820
+      endpoint: 172.200.41.112:51820
       routes:
-        - 10.0.0.1/32
-        - fd00::1/128
+        - 10.0.0.3/32
+        - fd00::3/128
       allowed:
-        - 10.0.0.1/32
-        - fd00::1/128
-        - 10.23.0.0/16
+        - 10.0.0.3/32
+        - fd00::3/128
+        - 10.223.0.0/16
