@@ -1,5 +1,9 @@
 [Interface]
-Address = {{ local_ipv4_prefix | trim }}, {{ local_ipv6_prefix | trim }} 
+{% if wireguard.addresses|length  > 1 %}
+Address = {{ wireguard.addresses | join(", ") | trim }}
+{% else %}
+Address = {{ wireguard.addresses | join("") | trim }}
+{% endif %}
 ListenPort = 51820
 Table = off
 
@@ -10,12 +14,28 @@ PreUp = sysctl -w net.ipv6.conf.all.forwarding=1
 # Read the private key
 PostUp = wg set %i private-key /etc/wireguard/%i.key
 
-# Add peer routes
-PostUp = ip route add {{ peer_ipv4_prefix | trim }} dev wg0
-PostUp = ip -6 route add {{ peer_ipv6_prefix | trim }} dev wg0
+{% for peer in wireguard.peers %}
+# Add routes for peer {{ peer.name | trim }}
+{% for route in peer.routes %}
+{% if "." in route %}
+PostUp = ip route add {{ route | trim }} dev wg0
+{% else %}
+PostUp = ip -6 route add {{ route | trim }} dev wg0
+{% endif %}
+{% endfor %}
 
+{% endfor %}
+{% for peer in wireguard.peers %}
 [Peer]
-PublicKey = <peer_public_key> 
-Endpoint = <peer_public_ip>:51820
-AllowedIPs = {{ peer_ipv4_prefix | trim }}, {{ peer_ipv6_prefix | trim }}, {{ peer_networks | join(',') }} 
-PersistentKeepalive = 10 
+# {{ peer.name }}
+PublicKey = {{ peer.key | trim }}
+Endpoint = {{ peer.endpoint | trim }}
+{% if peer.allowed|length  > 1 %}
+AllowedIPs = {{ peer.allowed | join(", ") | trim }}
+{% else %}
+AllowedIPs = {{ peer.allowed | join("") | trim }}
+{% endif %}
+PersistentKeepalive = 10
+
+{% endfor %}
+

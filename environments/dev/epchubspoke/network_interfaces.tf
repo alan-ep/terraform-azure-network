@@ -92,7 +92,7 @@ resource "azurerm_network_interface" "ibmwgdev1" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.ibm_wg.id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.223.0.5"
+    private_ip_address            = "10.223.0.4"
     public_ip_address_id          = azurerm_public_ip.ibmwgdev1.id
   }
 }

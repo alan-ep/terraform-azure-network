@@ -1,0 +1,48 @@
+bgp:
+  as: 64522
+  router_id: 10.223.3.4
+  listen_addresses:
+    - 10.0.0.2
+    - fd00::2
+    - 10.224.3.4
+  groups:
+    - name: azure
+      as: 65515
+      neighbors:
+        - 10.224.0.4
+        - 10.224.0.5
+      allowed_prefixes_from: []
+      allowed_prefixes_to:
+        - remote
+    - name: ibm
+      as: 64521
+      neighbors:
+        - 10.0.0.1
+        - fd00::1
+      allowed_prefixes_from: []
+      allowed_prefixes_to:
+        - local
+        - remote
+  prefix_sets:
+    - name: local
+      prefixes:
+        - 10.224.0.0/12
+    - name: remote
+      prefixes:
+        - 10.223.0.0/16
+
+wireguard:
+  addresses:
+    - 10.0.0.2/32
+    - fd00::2/128
+  peers:
+    - name: ibmwgdev1
+      key:
+      endpoint: 9.169.164.225:51820
+      routes:
+        - 10.0.0.1/32
+        - fd00::1/128
+      allowed:
+        - 10.0.0.1/32
+        - fd00::1/128
+        - 10.23.0.0/16

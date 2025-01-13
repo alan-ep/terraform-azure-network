@@ -5,7 +5,7 @@ resource "azurerm_linux_virtual_machine" "nvawgdev1" {
   tags = merge(
     azurerm_resource_group.rg.tags,
     {
-      role = "NvaWg"
+      managedBy = "Ansible"
     }
   )
 
@@ -42,7 +42,7 @@ resource "azurerm_linux_virtual_machine" "nvawgdev2" {
   tags = merge(
     azurerm_resource_group.rg.tags,
     {
-      role = "NvaWg"
+      managedBy = "Ansible"
     }
   )
 
@@ -76,12 +76,7 @@ resource "azurerm_linux_virtual_machine" "prod1clientdev" {
   name                = "prod1clientdev"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags = merge(
-    azurerm_resource_group.rg.tags,
-    {
-      role = "Client"
-    }
-  )
+  tags                = azurerm_resource_group.rg.tags
 
   size           = "Standard_B2als_v2"
   zone           = "1"
@@ -113,12 +108,7 @@ resource "azurerm_linux_virtual_machine" "prod2clientdev" {
   name                = "prod2clientdev"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags = merge(
-    azurerm_resource_group.rg.tags,
-    {
-      role = "Client"
-    }
-  )
+  tags                = azurerm_resource_group.rg.tags
 
   size           = "Standard_B2als_v2"
   zone           = "1"
@@ -150,12 +140,7 @@ resource "azurerm_linux_virtual_machine" "dev1clientdev" {
   name                = "dev1clientdev"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  tags = merge(
-    azurerm_resource_group.rg.tags,
-    {
-      role = "Client"
-    }
-  )
+  tags                = azurerm_resource_group.rg.tags
 
   size           = "Standard_B2als_v2"
   zone           = "1"
@@ -190,7 +175,7 @@ resource "azurerm_linux_virtual_machine" "ibmwgdev1" {
   tags = merge(
     azurerm_resource_group.rg.tags,
     {
-      role = "IbmWg"
+      managedBy = "Ansible"
     }
   )
 

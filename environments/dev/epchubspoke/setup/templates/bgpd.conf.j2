@@ -1,37 +1,49 @@
-AS {{ local_as }} 
-router-id {{ local_ipv4_address }} 
+AS {{ bgp.as | trim }}
+router-id {{ bgp.router_id | trim }}
 
 log updates
 fib-update yes
 connect-retry 5
 rde med compare always
 
-listen on {{ local_ipv4_address }} 
-listen on {{ local_ipv6_address }} 
+{% for address in bgp.listen_addresses %}
+listen on {{ address | trim }}
+{% endfor %}
 
-prefix-set local {
-{% for item in local_networks %}
-	{{ item }}
+{% for set in bgp.prefix_sets %}
+prefix-set {{ set.name | trim }} {
+{% for prefix in set.prefixes %}
+        {{ prefix }}
 {% endfor %}
 }
-
-prefix-set remote {
-{% for item in peer_networks %}
-	{{ item }}
 {% endfor %}
-}
 
-group wg {
-        remote-as {{ peer_as }} 
+{% for group in bgp.groups %}
+group {{ group.name | trim }} {
+        remote-as {{ group.as | trim }}
         set nexthop self
 
-        neighbor {{ peer_ipv4_address }} 
-        neighbor {{ peer_ipv6_address }} 
+{% for neighbor in group.neighbors %}
+        neighbor {{ neighbor | trim }}
+{% endfor %}
+{% if group.prepend_self is defined %}
+        set prepend-self {{ group.prepend_self | trim }}
+{% endif %}
 }
 
+{% endfor %}
+{% if "local" in bgp.prefix_sets|map(attribute="name")%}
 network prefix-set local
 
 deny quick from ebgp prefix-set local or-longer
+{% endif %}
 
-allow from group wg prefix-set remote
-allow to group wg prefix-set local
+{% for group in bgp.groups -%}
+{% for prefix in group.allowed_prefixes_from %}
+allow from group {{ group.name | trim }} prefix-set {{ prefix | trim }}
+{% endfor %}
+{% for prefix in group.allowed_prefixes_to %}
+allow to group {{ group.name | trim }} prefix-set {{ prefix | trim }}
+{% endfor %}
+
+{% endfor %}
