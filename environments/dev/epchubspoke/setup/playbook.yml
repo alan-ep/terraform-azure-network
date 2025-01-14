@@ -6,30 +6,30 @@
       ansible.builtin.reboot:
 
   tasks:
-    #- name: Update apt cache
-    #   apt:
-    #     update_cache: yes
-    #     cache_valid_time: 3600
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
 
-    # - name: Upgrade all packages
-    #   apt:
-    #     upgrade: yes
+    - name: Upgrade all packages
+      apt:
+        upgrade: yes
 
-    # - name: Perform dist-upgrade
-    #   apt:
-    #     upgrade: dist
+    - name: Perform dist-upgrade
+      apt:
+        upgrade: dist
 
-    # - name: Install linux-azure kernel
-    #   apt:
-    #     name: linux-azure
-    #     state: present
-    #   notify:
-    #     - Restart Host
+    - name: Install linux-azure kernel
+      apt:
+        name: linux-azure
+        state: present
+      notify:
+        - Restart Host
 
-    # - name: Install and configure WireGuard
-    #   ansible.builtin.include_tasks: wireguard.yml
-    #   loop: "{{ wireguard }}"
-    #   when: wireguard is defined
+    - name: Install and configure WireGuard
+      ansible.builtin.include_tasks: wireguard.yml
+      loop: "{{ wireguard }}"
+      when: wireguard is defined
 
     - name: Install and configure OpenBGPD
       include_tasks: bgp.yml

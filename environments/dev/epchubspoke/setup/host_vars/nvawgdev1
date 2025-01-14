@@ -8,10 +8,6 @@ bgp:
     - fd00::2
     - fd00::6
   groups:
-    - name: local
-      as: 64522
-      neighbors:
-        - 10.224.3.5
     - name: azure
       as: 65515
       neighbors:

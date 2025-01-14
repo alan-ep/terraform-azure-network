@@ -8,10 +8,6 @@ bgp:
     - fd00::1
     - fd00::3
   groups:
-    - name: local
-      as: 64521
-      neighbors:
-        - 10.223.0.5
     - name: nva
       as: 64522
       neighbors:

@@ -51,9 +51,6 @@ network prefix-set local
 deny quick from ebgp prefix-set local or-longer
 {% endif %}
 
-# Allow all prefixes from and to iBGP neighbors
-allow from ibgp
-allow to ibgp
 {% for group in bgp.groups -%}
 {% if group.allowed_prefixes_from is defined %}
 {% for prefix in group.allowed_prefixes_from %}
