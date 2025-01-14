@@ -1,0 +1,67 @@
+- name: Install WireGuard
+  apt:
+    name: wireguard
+    state: present
+
+- name: Create WireGuard modprobe configuration
+  copy:
+    content: "options wireguard dyndbg"
+    dest: /etc/modprobe.d/wireguard.conf
+    mode: '0644'
+
+- name: Check if the WireGuard private key exists
+  ansible.builtin.stat:
+    path: /etc/wireguard/{{ item.name }}.key
+  register: private_key
+
+- name: Create the WireGuard private key if it does not exist
+  ansible.builtin.shell:
+    cmd: "wg genkey | tee /etc/wireguard/{{ item.name }}.key"
+  when: private_key.stat.exists == False
+
+- name: Update the permissions on the private key
+  ansible.builtin.file:
+    path: "/etc/wireguard/{{ item.name }}.key"
+    mode: '0600'
+  when: private_key.stat.exists
+
+- name: Check if the WireGuard public key exists
+  ansible.builtin.stat:
+    path: "/etc/wireguard/{{ item.name }}.pub"
+  register: public_key
+
+- name: Create the WireGuard public key if it does not exist
+  ansible.builtin.shell:
+    cmd: "cat /etc/wireguard/{{ item.name }}.key | wg pubkey | tee /etc/wireguard/{{ item.name }}.pub"
+  register: public_key_value
+  when: public_key.stat.exists == False
+
+- name: Update the permissions on the public key
+  ansible.builtin.file:
+    path: "/etc/wireguard/{{ item.name }}.pub"
+    mode: '0600'
+  when: public_key.stat.exists
+
+- name: Print the public key
+  ansible.builtin.debug:
+    msg:
+    - "The IP address for {{ inventory_hostname }} is {{ ansible_ssh_host }}"
+    - "The public key for {{ inventory_hostname }} interface {{ item.name }} is {{ public_key_value.stdout }}"
+  when: public_key_value is defined and "stdout" in public_key_value
+
+- name: Check if the WireGuard config exists
+  ansible.builtin.stat:
+    path: "/etc/wireguard/{{ item.name }}.conf"
+  register: wireguard_config
+
+- name: Create the WireGuard configuration from template if it does not exist
+  template:
+    src: wg.conf.j2
+    dest: "/etc/wireguard/{{ item.name }}.conf"
+    mode: '0600'
+  when: wireguard_config.stat.exists == False
+
+- name: Enable WireGuard
+  systemd:
+    name: "wg-quick@{{ item.name }}"
+    enabled: yes

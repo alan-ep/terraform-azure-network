@@ -3,26 +3,33 @@ bgp:
   router_id: 10.223.3.4
   listen_addresses:
     - 10.0.0.2
-    - fd00::2
+    - 10.0.0.6
     - 10.224.3.4
+    - fd00::2
+    - fd00::6
   groups:
+    - name: local
+      as: 64522
+      neighbors:
+        - 10.224.3.5
     - name: azure
       as: 65515
       neighbors:
         - 10.224.0.4
         - 10.224.0.5
-      allowed_prefixes_from: []
       allowed_prefixes_to:
         - remote
     - name: ibm
       as: 64521
       neighbors:
         - 10.0.0.1
+        - 10.0.0.5
         - fd00::1
-      allowed_prefixes_from: []
+        - fd00::5
+      allowed_prefixes_from:
+        - remote
       allowed_prefixes_to:
         - local
-        - remote
   prefix_sets:
     - name: local
       prefixes:
@@ -32,17 +39,33 @@ bgp:
         - 10.223.0.0/16
 
 wireguard:
-  addresses:
-    - 10.0.0.2/32
-    - fd00::2/128
-  peers:
-    - name: ibmwgdev1
-      key:
-      endpoint: 9.169.164.225:51820
-      routes:
-        - 10.0.0.1/32
-        - fd00::1/128
-      allowed:
-        - 10.0.0.1/32
-        - fd00::1/128
-        - 10.223.0.0/16
+  - name: wg0
+    addresses:
+      - 10.0.0.2/32
+      - fd00::2/128
+    port: 51820
+    peers:
+      - name: ibmwgdev1
+        key:
+        endpoint: 9.169.164.225:51820
+        routes:
+          - 10.0.0.1/32
+          - fd00::1/128
+        allowed:
+          - 0.0.0.0/0
+          - ::/0
+  - name: wg1
+    addresses:
+      - 10.0.0.6/32
+      - fd00::6/128
+    port: 51821
+    peers:
+      - name: ibmwgdev2
+        key:
+        endpoint: 172.200.41.112:51821
+        routes:
+          - 10.0.0.5/32
+          - fd00::5/128
+        allowed:
+          - 0.0.0.0/0
+          - ::/0

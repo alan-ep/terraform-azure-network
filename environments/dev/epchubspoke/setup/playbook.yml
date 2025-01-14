@@ -6,112 +6,31 @@
       ansible.builtin.reboot:
 
   tasks:
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
+    #- name: Update apt cache
+    #   apt:
+    #     update_cache: yes
+    #     cache_valid_time: 3600
 
-    - name: Upgrade all packages
-      apt:
-        upgrade: yes
+    # - name: Upgrade all packages
+    #   apt:
+    #     upgrade: yes
 
-    - name: Perform dist-upgrade
-      apt:
-        upgrade: dist
+    # - name: Perform dist-upgrade
+    #   apt:
+    #     upgrade: dist
 
-    - name: Install linux-azure kernel
-      apt:
-        name: linux-azure
-        state: present
-      notify:
-        - Restart Host
+    # - name: Install linux-azure kernel
+    #   apt:
+    #     name: linux-azure
+    #     state: present
+    #   notify:
+    #     - Restart Host
 
-    - name: Install WireGuard
-      apt:
-        name: wireguard
-        state: present
+    # - name: Install and configure WireGuard
+    #   ansible.builtin.include_tasks: wireguard.yml
+    #   loop: "{{ wireguard }}"
+    #   when: wireguard is defined
 
-    - name: Create WireGuard modprobe configuration
-      copy:
-        content: "options wireguard dyndbg"
-        dest: /etc/modprobe.d/wireguard.conf
-        mode: '0644'
-
-    - name: Check if the WireGuard private key exists
-      ansible.builtin.stat:
-        path: /etc/wireguard/wg0.key
-      register: private_key
-
-    - name: Create the WireGuard private key if it does not exist
-      ansible.builtin.shell:
-        cmd: wg genkey | tee /etc/wireguard/wg0.key
-      when: private_key.stat.exists == False
-
-    - name: Update the permissions on the private key
-      ansible.builtin.file:
-        path: /etc/wireguard/wg0.key
-        mode: '0600'
-      when: private_key.stat.exists
-
-    - name: Check if the WireGuard public key exists
-      ansible.builtin.stat:
-        path: /etc/wireguard/wg0.pub
-      register: public_key
-
-    - name: Create the WireGuard public key if it does not exist
-      ansible.builtin.shell:
-        cmd: cat /etc/wireguard/wg0.key | wg pubkey | tee /etc/wireguard/wg0.pub
-      register: public_key_value
-      when: public_key.stat.exists == False
-
-    - name: Update the permissions on the public key
-      ansible.builtin.file:
-        path: /etc/wireguard/wg0.pub
-        mode: '0600'
-      when: public_key.stat.exists
-
-    - name: Print the public key
-      ansible.builtin.debug:
-        msg:
-        - "The IP address for {{ inventory_hostname }} is {{ ansible_ssh_host }}"
-        - "The public key for {{ inventory_hostname }} is {{ public_key_value.stdout }}"
-      when: public_key_value is defined and "stdout" in public_key_value
-
-    - name: Check if the WireGuard config exists
-      ansible.builtin.stat:
-        path: /etc/wireguard/wg0.conf
-      register: wireguard_config
-
-    - name: Create the WireGuard configuration from template if it does not exist
-      template:
-        src: wg0.conf.j2
-        dest: /etc/wireguard/wg0.conf
-        mode: '0600'
-      when: wireguard_config.stat.exists == False
-
-    - name: Enable WireGuard
-      systemd:
-        name: wg-quick@wg0
-        enabled: yes
-
-    - name: Install OpenBGPD
-      apt:
-        name: openbgpd
-        state: present
-
-    - name: Check if the WireGuard config exists
-      ansible.builtin.stat:
-        path: /etc/bgpd.conf
-      register: openbgpd_config
-
-    - name: Create the OpenBGPD configuration from template if it does not exist
-      template:
-        src: bgpd.conf.j2
-        dest: /etc/bgpd.conf
-        mode: '0600'
-      when: openbgpd_config.stat.exists == False
-
-    - name: Enable OpenBGPD
-      systemd:
-        name: openbgpd
-        enabled: yes
+    - name: Install and configure OpenBGPD
+      include_tasks: bgp.yml
+      when: bgp is defined

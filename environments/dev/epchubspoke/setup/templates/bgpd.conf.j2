@@ -1,15 +1,25 @@
 AS {{ bgp.as | trim }}
 router-id {{ bgp.router_id | trim }}
 
+# Log updates
 log updates
+
+# Install routes
 fib-update yes
-connect-retry 5
+
+# Always check MED
 rde med compare always
 
+# Optimize timers
+holdtime 15
+connect-retry 5
+
+# Listen addresses
 {% for address in bgp.listen_addresses %}
 listen on {{ address | trim }}
 {% endfor %}
 
+# Prefix sets
 {% for set in bgp.prefix_sets %}
 prefix-set {{ set.name | trim }} {
 {% for prefix in set.prefixes %}
@@ -18,32 +28,42 @@ prefix-set {{ set.name | trim }} {
 }
 {% endfor %}
 
+# Neighbor groups
 {% for group in bgp.groups %}
 group {{ group.name | trim }} {
         remote-as {{ group.as | trim }}
         set nexthop self
+        {% if group.prepend_self is defined -%}
+        set prepend-self {{ group.prepend_self | trim }}
+        {% endif %}
 
 {% for neighbor in group.neighbors %}
         neighbor {{ neighbor | trim }}
 {% endfor %}
-{% if group.prepend_self is defined %}
-        set prepend-self {{ group.prepend_self | trim }}
-{% endif %}
 }
 
 {% endfor %}
 {% if "local" in bgp.prefix_sets|map(attribute="name")%}
+# Announce local prefixes
 network prefix-set local
 
+# Deny our prefix from eBPG neighbors and end evaluation
 deny quick from ebgp prefix-set local or-longer
 {% endif %}
 
+# Allow all prefixes from and to iBGP neighbors
+allow from ibgp
+allow to ibgp
 {% for group in bgp.groups -%}
+{% if group.allowed_prefixes_from is defined %}
 {% for prefix in group.allowed_prefixes_from %}
 allow from group {{ group.name | trim }} prefix-set {{ prefix | trim }}
 {% endfor %}
+{% endif %}
+{% if group.allowed_prefixes_to is defined %}
 {% for prefix in group.allowed_prefixes_to %}
 allow to group {{ group.name | trim }} prefix-set {{ prefix | trim }}
 {% endfor %}
+{% endif %}
 
 {% endfor %}

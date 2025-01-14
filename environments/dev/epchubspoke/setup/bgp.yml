@@ -1,0 +1,21 @@
+- name: Install OpenBGPD
+  apt:
+    name: openbgpd
+    state: present
+
+- name: Check if the WireGuard config exists
+  ansible.builtin.stat:
+    path: /etc/bgpd.conf
+  register: openbgpd_config
+
+- name: Create the OpenBGPD configuration from template if it does not exist
+  template:
+    src: bgpd.conf.j2
+    dest: /etc/bgpd.conf
+    mode: '0600'
+  when: openbgpd_config.stat.exists == False
+
+- name: Enable OpenBGPD
+  systemd:
+    name: openbgpd
+    enabled: yes

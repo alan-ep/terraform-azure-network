@@ -17,3 +17,8 @@ resource "azurerm_subnet_route_table_association" "dev1_client" {
   subnet_id      = azurerm_subnet.dev1_client.id
   route_table_id = azurerm_route_table.dev1_default.id
 }
+
+resource "azurerm_subnet_route_table_association" "ibm_wg" {
+  subnet_id      = azurerm_subnet.ibm_wg.id
+  route_table_id = azurerm_route_table.ibm_default.id
+}

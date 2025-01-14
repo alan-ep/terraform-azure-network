@@ -3,10 +3,8 @@ bgp:
   router_id: 10.223.0.4
   listen_addresses:
     - 10.0.0.1
-    - 10.0.0.3
-    - 10.223.0.4
     - fd00::1
-    - fd00::3
+    - 10.223.0.4
   groups:
     - name: local
       as: 64521
@@ -14,11 +12,10 @@ bgp:
         - 10.223.0.5
     - name: nva
       as: 64522
+      prepend_self: 1
       neighbors:
         - 10.0.0.2
-        - 10.0.0.4
         - fd00::2
-        - fd00::4
       allowed_prefixes_from:
         - remote
       allowed_prefixes_to:
